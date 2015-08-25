@@ -1,1 +1,1 @@
-# HazzardsGravestoneMod
+# Hazzard's Gravestone Mod
