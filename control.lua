@@ -1,8 +1,36 @@
-require "util"
 require "defines"
 
---[[ Made by Hazzard & BiG_MEECH ]]--
+require "gui"
+
+--[[ Made by Mingwei "Hazzard" Samuel ]]--
+--[[ Inspiration from BiG_MEECH ]]--
 -- GPLv2 --
+
+game.on_event(defines.events.on_tick, function(event)
+  for i,player in ipairs(game.players) do
+    setGuiButtonVisible(player, player.get_item_count("gravestone-controller") > 0)
+  end
+end)
+
+game.on_event(defines.events.on_gui_click, function(event)
+  local player = game.players[event.player_index]
+
+  --show (or hide ?) settings gui
+  if event.element.name == "gravestone-button-main" or
+      event.element.name == "gravestone-button-close" then
+    toggleGui(player)
+  end
+
+  if event.element.name == "gravestone-settings-percentage-retained-dec-lg" then
+    changePercentageRetained(player, -0.1)
+  elseif event.element.name == "gravestone-settings-percentage-retained-dec-sm" then
+    changePercentageRetained(player, -0.01)
+  elseif event.element.name == "gravestone-settings-percentage-retained-inc-sm" then
+    changePercentageRetained(player, 0.01)
+  elseif event.element.name == "gravestone-settings-percentage-retained-inc-lg" then
+    changePercentageRetained(player, 0.1)
+  end
+end)
 
 game.on_event(defines.events.on_entity_died, function(event)
   local entity = event.entity
