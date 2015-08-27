@@ -68,18 +68,22 @@ game.on_event(defines.events.on_gui_click, function(event)
 end)
 
 game.on_event(defines.events.on_entity_died, function(event)
-  local entity = event.entity
-  if entity.type ~= "player" then return end
+  local player = event.player
+  if player.type ~= "player" then return end
 
-  local pos = entity.surface.find_non_colliding_position(
-    "gravestone", entity.position, 8, 1)
+  local pos = player.surface.find_non_colliding_position(
+    "gravestone", player.position, 8, 1)
   if not pos then return end
 
-  local grave = entity.surface.create_entity{
-    name="gravestone", position=pos, force=entity.force}
+  local grave = player.surface.create_player{
+    name="gravestone", position=pos, force=player.force}
   local grave_inv = grave.get_inventory(defines.inventory.chest)
 
   local count = 0
+  if player.cursor_stack ~= nil && player.cursor_stack.valid_for_read then
+    count = count + 1
+    grave_inv[count].set_stack(player.cursor_stack)
+  end
   for i, id in ipairs{
       defines.inventory.player_guns,
       defines.inventory.player_tools,
@@ -88,7 +92,7 @@ game.on_event(defines.events.on_entity_died, function(event)
       defines.inventory.player_quickbar,
       defines.inventory.player_main,
       defines.inventory.player_trash} do
-    local inv = entity.get_inventory(id)
+    local inv = player.get_inventory(id)
     for j = 1, #inv do
       if inv[j].valid_for_read then
         count = count + 1
