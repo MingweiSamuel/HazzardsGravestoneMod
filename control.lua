@@ -3,11 +3,31 @@ require "defines"
 require "gui"
 
 --[[ Made by Mingwei "Hazzard" Samuel ]]--
---[[ Inspiration from BiG_MEECH ]]--
+--[[    Inspiration from BiG_MEECH    ]]--
 -- GPLv2 --
+
+game.on_init(function() init() end)
+game.on_load(function() init() end)
+
+function init()
+  local effectiveVersion = 2 -- force rebuild the gui in updates
+  if global.version ~= effectiveVersion then
+    global.version = effectiveVersion
+    for i,player in ipairs(game.players) do
+      destroyGui(player)
+    end
+  end
+
+
+  global.settings = global.settings or {}
+  global.settings.mode = global.settings.mode or 1 -- 1=chest, 2=drop
+  if global.settings.percentageRetained == nil then global.settings.percentageRetained = 1 end
+  if global.settings.saveInventories == nil then global.settings.saveInventories = true end
+end
 
 game.on_event(defines.events.on_tick, function(event)
   for i,player in ipairs(game.players) do
+    updateGui(player)
     setGuiButtonVisible(player, player.get_item_count("gravestone-controller") > 0)
   end
 end)
@@ -15,20 +35,35 @@ end)
 game.on_event(defines.events.on_gui_click, function(event)
   local player = game.players[event.player_index]
 
-  --show (or hide ?) settings gui
-  if event.element.name == "gravestone-button-main" or
-      event.element.name == "gravestone-button-close" then
-    toggleGui(player)
+  --parse path
+  local i = 1
+  local path = {}
+  for v in string.gmatch(event.element.name, "[^%-]+") do
+    path[i] = v
+    i = i + 1
   end
 
-  if event.element.name == "gravestone-settings-percentage-retained-dec-lg" then
-    changePercentageRetained(player, -0.1)
-  elseif event.element.name == "gravestone-settings-percentage-retained-dec-sm" then
-    changePercentageRetained(player, -0.01)
-  elseif event.element.name == "gravestone-settings-percentage-retained-inc-sm" then
-    changePercentageRetained(player, 0.01)
-  elseif event.element.name == "gravestone-settings-percentage-retained-inc-lg" then
-    changePercentageRetained(player, 0.1)
+  if path[1] == "gravestone" then
+    if path[2] == "button" then
+      if path[3] == "main" or path[3] == "close" then
+        toggleGui(player)
+      end
+    elseif path[2] == "settings" then
+      if path[3] == "percentageretained" then
+        local delta = 0.1
+        if path[4] == "dec" then
+          delta = delta * -1
+        end
+        if path[5] == "sm" then
+          delta = delta / 10
+        end
+        global.settings.percentageRetained = global.settings.percentageRetained + delta
+      elseif path[3] == "mode" then
+        global.settings.mode = 3 - global.settings.mode -- 1 -> 2, 2 -> 1
+      elseif path[3] == "saveinventories" then
+        global.settings.saveInventories = not global.settings.saveInventories
+      end
+    end
   end
 end)
 

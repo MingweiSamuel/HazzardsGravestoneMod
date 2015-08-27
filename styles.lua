@@ -116,17 +116,15 @@ data.raw["gui-style"].default["gs_header_label"] =
     font = "font-lb"
 }
 
-data.raw["gui-style"].default["gs_button_sm"] =
+data.raw["gui-style"].default["gs_button"] =
 {
     type = "button_style",
     parent = "button_style",
-    top_padding = 0,
-    right_padding = 0,
-    bottom_padding = 0,
-    left_padding = 0,
-    width = 24,
-    height = 24,
-    font = "font-sb",
+    top_padding = 4,
+    right_padding = 12,
+    bottom_padding = 4,
+    left_padding = 12,
+    font = "font-m",
     align = "center",
     hovered_font_color = { r = 0.1, g = 0.1, b = 0.1 },
     default_graphical_set =
@@ -167,6 +165,19 @@ data.raw["gui-style"].default["gs_button_sm"] =
             y = 32
         }
     }
+}
+
+data.raw["gui-style"].default["gs_button_icon"] =
+{
+    type = "button_style",
+    parent = "gs_button",
+    font = "font-sb",
+    width = 24,
+    height = 24,
+    top_padding = 0,
+    right_padding = 0,
+    bottom_padding = 0,
+    left_padding = 0
 }
 
 data.raw["gui-style"].default["gs_settings_label"] =

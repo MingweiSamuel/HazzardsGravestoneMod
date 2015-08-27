@@ -52,7 +52,7 @@ function toggleGui(player)
       headerFlow.add({
         type = "button",
         name = "gravestone-button-close",
-        style = "gs_button_sm",
+        style = "gs_button_icon",
         caption = "X"
       })
 
@@ -70,7 +70,8 @@ function toggleGui(player)
       modeFlow.add({
         type = "button",
         name = "gravestone-settings-mode",
-        caption = { "gravestone-settings-mode-chest" }
+        style = "gs_button",
+        caption = "..."
       })
 
       local percentageRetainedFlow = gravestoneFrame.add({
@@ -82,42 +83,60 @@ function toggleGui(player)
         type = "label",
         name = "percentageRetainedLabel",
         style = "gs_settings_label",
-        caption = { "gravestone-percentage-retained" }
+        caption = { "gravestone-settings-percentageretained" }
       })
       percentageRetainedFlow.add({
         type = "button",
-        name = "gravestone-settings-percentage-retained-dec-lg",
-        style = "gs_button_sm",
+        name = "gravestone-settings-percentageretained-dec-lg",
+        style = "gs_button_icon",
         caption = "<<"
       })
       percentageRetainedFlow.add({
         type = "button",
-        name = "gravestone-settings-percentage-retained-dec-sm",
-        style = "gs_button_sm",
+        name = "gravestone-settings-percentageretained-dec-sm",
+        style = "gs_button_icon",
         caption = "<"
       })
       percentageRetainedFlow.add({
         type = "progressbar",
-        name = "gravestone-settings-percentage-retained", 
+        name = "gravestone-settings-percentageretained", 
         style = "gs_settings_progressbar",
         caption = "69%",
         size = 100
       })
       percentageRetainedFlow.add({
         type = "button",
-        name = "gravestone-settings-percentage-retained-inc-sm",
-        style = "gs_button_sm",
+        name = "gravestone-settings-percentageretained-inc-sm",
+        style = "gs_button_icon",
         caption = ">"
       })
       percentageRetainedFlow.add({
         type = "button",
-        name = "gravestone-settings-percentage-retained-inc-lg",
-        style = "gs_button_sm",
+        name = "gravestone-settings-percentageretained-inc-lg",
+        style = "gs_button_icon",
         caption = ">>"
       })
       percentageRetainedFlow.add({
         type = "label",
-        name = "gravestone-settings-percentage-retained-value"
+        name = "gravestone-settings-percentageretained-value"
+      })
+
+      local saveInventoriesFlow = gravestoneFrame.add({
+        type = "flow",
+        name = "saveInventoriesFlow",
+        direction = "horizontal"
+      })
+      saveInventoriesFlow.add({
+        type = "label",
+        name = "saveInventoriesLabel",
+        style = "gs_settings_label",
+        caption = { "gravestone-settings-saveinventories" }
+      })
+      saveInventoriesFlow.add({
+        type = "button",
+        name = "gravestone-settings-saveinventories",
+        style = "gs_button",
+        caption = "..."
       })
     end
 
@@ -125,14 +144,24 @@ function toggleGui(player)
   end
 end
 
-function changePercentageRetained(player, delta)
-  local value = player.gui.center.gravestoneFrame.percentageRetainedFlow["gravestone-settings-percentage-retained"].value + delta
-  setPercentageRetained(player, value)
+function destroyGui(player)
+  if player.gui.center.gravestoneFrame ~= nil then
+    player.gui.center.gravestoneFrame.destroy()
+  end
 end
 
-function setPercentageRetained(player, value)
-  value = math.floor(value * 100 + 0.5) / 100
-  value = math.min(1, math.max(0, value))
-  player.gui.center.gravestoneFrame.percentageRetainedFlow["gravestone-settings-percentage-retained"].value = value
-  player.gui.center.gravestoneFrame.percentageRetainedFlow["gravestone-settings-percentage-retained-value"].caption = math.floor(value * 100) .. "%"
+function updateGui(player)
+  if not guiVisible(player) then return end
+
+  local modeCaption = { "gravestone-settings-mode-" .. ({ "chest", "drop" })[global.settings.mode]}
+  player.gui.center.gravestoneFrame.modeFlow["gravestone-settings-mode"].caption = modeCaption
+
+  local percentageRetained = global.settings.percentageRetained
+  percentageRetained = math.floor(percentageRetained * 100 + 0.5) / 100
+  percentageRetained = math.min(1, math.max(0, percentageRetained))
+  player.gui.center.gravestoneFrame.percentageRetainedFlow["gravestone-settings-percentageretained"].value = percentageRetained
+  player.gui.center.gravestoneFrame.percentageRetainedFlow["gravestone-settings-percentageretained-value"].caption = math.floor(percentageRetained * 100) .. "%"
+
+  local saveInventoriesCaption = { "gravestone-settings-saveinventories-" .. (global.settings.saveInventories and "yes" or "no")}
+  player.gui.center.gravestoneFrame.saveInventoriesFlow["gravestone-settings-saveinventories"].caption = saveInventoriesCaption
 end
