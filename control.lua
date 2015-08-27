@@ -68,21 +68,34 @@ game.on_event(defines.events.on_gui_click, function(event)
 end)
 
 game.on_event(defines.events.on_entity_died, function(event)
-  local player = event.player
+  local player = event.entity
   if player.type ~= "player" then return end
+  
+  local transfer_stack --function to deal with stacks, based on mode
+  if global.settings.mode == 1 then -- chest
+    local pos = player.surface.find_non_colliding_position(
+      "gravestone", player.position, 8, 1)
+    if not pos then return end -- shouldn't happen
+    
+    local grave = player.surface.create_player{
+      name="gravestone", position=pos, force=player.force}
 
-  local pos = player.surface.find_non_colliding_position(
-    "gravestone", player.position, 8, 1)
-  if not pos then return end
-
-  local grave = player.surface.create_player{
-    name="gravestone", position=pos, force=player.force}
-  local grave_inv = grave.get_inventory(defines.inventory.chest)
+    transfer_stack = (function(inv)
+      return (function(stack, i)
+        if i > #inv then return end
+        inv[i].set_stack(stack)
+      end)
+    end)(grave.get_inventory(defines.inventory.chest))
+  else -- ground
+    transfer_stack = (function(stack, i)
+      player.surface.spill_item_stack(stack, player.position) --will this work with ItemStack's instead of SimpleItemStack's?
+    end)
+  end
 
   local count = 0
   if player.cursor_stack ~= nil && player.cursor_stack.valid_for_read then
     count = count + 1
-    grave_inv[count].set_stack(player.cursor_stack)
+    transfer_stack(player.cursor_stack, count)
   end
   for i, id in ipairs{
       defines.inventory.player_guns,
@@ -96,8 +109,7 @@ game.on_event(defines.events.on_entity_died, function(event)
     for j = 1, #inv do
       if inv[j].valid_for_read then
         count = count + 1
-        if count > #grave_inv then return end
-        grave_inv[count].set_stack(inv[j])
+        transfer_stack(inv[j], count)
       end
     end
   end
