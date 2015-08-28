@@ -77,7 +77,7 @@ game.on_event(defines.events.on_entity_died, function(event)
       "gravestone", player.position, 8, 1)
     if not pos then return end -- shouldn't happen
     
-    local grave = player.surface.create_player{
+    local grave = player.surface.create_entity{
       name="gravestone", position=pos, force=player.force}
 
     transfer_stack = (function(inv)
@@ -93,7 +93,7 @@ game.on_event(defines.events.on_entity_died, function(event)
   end
 
   local count = 0
-  if player.cursor_stack ~= nil && player.cursor_stack.valid_for_read then
+  if player.cursor_stack ~= nil and player.cursor_stack.valid_for_read then
     count = count + 1
     transfer_stack(player.cursor_stack, count)
   end
