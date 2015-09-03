@@ -152,22 +152,34 @@ game.on_event(defines.events.on_entity_died, function(event)
     end)(grave.get_inventory(defines.inventory.chest))
 
   else --[[ DROP ON GROUND ]]--
+    function drop_items(stack, surface, pos)
+      if not pcall(function() -- version >= 12.6
+        surface.spill_item_stack(stack, pos)
+      end) then -- version < 12.6
+
+      end
+    end
     transfer_stack = (function(stack)
       log("Drop: processing \"" .. stack.name .. "\"x" .. stack.count)
       log("Drop")
 
       if stack.has_grid then --will also work with SimpleItemStacks (has_grid == nil)
         log("Stack is modular {")
-        local equipments = stack.grid.take_all()
-        for name, count in pairs(equipments) do
-          log("Equipment: \"" .. name .. "\"x" .. count)
-          player.surface.spill_item_stack({ name = name, count = count }, player.position) --always spawn equipment
-        end
+
+        --[[ in version 0.12.6+, spill_item_stack works with ItemStacks, not just SimpleItemStacks ]]--
+        
+        --local equipments = stack.grid.take_all()
+        --for name, count in pairs(equipments) do
+        --  log("Equipment: \"" .. name .. "\"x" .. count)
+        --  player.surface.spill_item_stack({ name = name, count = count }, player.position) --always spawn equipment
+        --end
+
         if global.settings.saveInventories then
           log("} Not shrinking stack")
           player.surface.spill_item_stack(stack, player.position)
           return
         end
+        
         log("}")
       end
 
